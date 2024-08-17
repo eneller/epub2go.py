@@ -1,0 +1,10 @@
+html body div.navi-gb
+html body h5
+html body div.dropdown
+html body div.anzeige-chap
+html body a
+html body hr
+html body h3.author
+html body h2.title
+html body div.bottomnavi-gb
+html head

@@ -1,0 +1,464 @@
+/* drama.css - Stand März 2024 */
+body {
+  margin-right: 10%;
+  margin-left: 10%;
+  margin-top: 0%;
+  margin-bottom: 1%;
+}
+.toc {
+  display: none;
+}
+a:link {
+  color: #039;
+  text-decoration: none;
+}
+a:visited {
+  color: #039;
+  text-decoration: none;
+}
+a:hover {
+  color: #039;
+  text-decoration: none;
+  background-color: #e0e0e0;
+}
+a:active {
+  color: #039;
+  text-decoration: none;
+}
+td {
+  font-family: "Arial", sans-serif;
+}
+.mainnav {
+  font-family: "Arial", sans-serif;
+  font-variant: small-caps;
+  background-color: #fff;
+  text-align: center;
+  border-top: 1px #d26402 solid;
+  border-bottom: 1px #d26402 solid;
+}
+.mainnav-ed {
+  font-family: "Arial", sans-serif;
+  background-color: #fff;
+  text-align: center;
+  border-top: 1px #cc6060 solid;
+  border-bottom: 1px #cc6060 solid;
+}
+.autalpha {
+  font-family: "Arial", sans-serif;
+  text-align: center;
+}
+.trenner {
+  font-size: 10pt;
+  font-weight: bold;
+  color: #d26402;
+}
+.right {
+  text-align: right;
+}
+.left {
+  text-align: left;
+}
+.authorlist {
+  text-align: left;
+}
+.author {
+  color: gray;
+}
+.box {
+  margin: 1.5em 15%;
+  border: 1px solid #666;
+  padding: 1em;
+}
+.dedication {
+  text-indent: 0;
+  text-align: center;
+  font-size: 1.5em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+.figcaption {
+  text-indent: 0;
+  text-align: center;
+  font-style: italic;
+}
+.figure {
+  text-indent: 0;
+  text-align: center;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.fraktur {
+  font-family: "Frankenstein", "Times", serif;
+}
+.hidden {
+  display: none;
+}
+.lektorat {
+  color: red;
+}
+.motto {
+  text-indent: 0;
+  margin-right: 5em;
+  margin-left: 50%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.note {
+  line-height: 90%;
+  font-size: 90%;
+}
+.online {
+  display: none;
+}
+.recipient {
+  margin-left: -1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.regie, .action {
+  font-size: 90%;
+  font-style: italic;
+}
+.sender {
+  margin-left: 2em;
+  font-style: italic;
+  font-weight: bold;
+  color: darkblue;
+}
+.signatur, .signature {
+  text-align: right;
+  margin-right: 2em;
+}
+.smallcaps {
+  font-variant: small-caps;
+}
+.speaker {
+  color: #333;
+  font-weight: bold;
+}
+.subtitle {
+  color: darkgray;
+}
+.title {
+  font-size: 2em;
+}
+.upper {
+  text-transform: uppercase;
+}
+.wide, .spaced {
+  letter-spacing: 0.15em;
+}
+h1, h2, h3, h4, h6 {
+  text-align: center;
+}
+h5 {
+  text-align: center;
+  font-size: 90%;
+  color: #808080;
+  font-weight: normal;
+}
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: 2em;
+  text-indent: -2em;
+}
+p.abstract, p.stage {
+  font-size: 90%;
+  font-style: italic;
+  margin-left: 3em;
+  margin-right: 3em;
+  text-indent: 0;
+  text-align: justify;
+}
+p.address {
+  text-align: right;
+  text-indent: 0;
+  font-style: italic;
+}
+p.center {
+  text-indent: 0;
+  margin-left: 0;
+  text-align: center;
+}
+p.centerbig {
+  margin-left: 0;
+  margin-bottom: 0.6em;
+  margin-top: 0.6em;
+  text-indent: 0;
+  text-align: center;
+  font-size: 115%;
+}
+p.centersml {
+  margin-left: 0;
+  text-indent: 0;
+  text-align: center;
+  font-size: 90%;
+  margin-bottom: 0.3em;
+  margin-top: 0.3em;
+}
+p.date {
+  text-align: right;
+  font-style: italic;
+}
+p.dblmarg {
+  text-indent: 0;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+p.epigraph {
+  text-indent: 0;
+  text-align: right;
+  margin-right: 5%;
+  font-style: italic;
+}
+p.initial {
+  text-indent: 0;
+  margin-left: 0;
+  text-align: justify;
+}
+p.initial:first-letter {
+  font-size: 180%;
+}
+p.left {
+  margin-left: 0;
+  text-indent: 0;
+  text-align: left;
+}
+p.leftjust {
+  text-indent: 0;
+  margin-left: 0;
+  text-align: justify;
+}
+p.leftmarg {
+  text-indent: 0;
+  text-align: left;
+  margin-left: 2em;
+}
+p.line {
+  text-align: left;
+  text-indent: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+p.poem, p.vers {
+  text-indent: 0;
+  text-align: left;
+  margin-left: 2em;
+}
+p.prosa {
+  margin-left: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  text-indent: 0.8em;
+  text-align: justify;
+}
+p.right {
+  margin-left: 0;
+  text-indent: 0;
+  text-align: right;
+}
+p.scene {
+  text-align: center;
+  margin-left: 0;
+  text-indent: 0;
+  font-style: italic;
+}
+hr {
+  border: 1px solid;
+  text-align: center;
+  color: #999;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+hr.short {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 40%;
+  width: 20%;
+  text-align: center;
+}
+hr.star {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  width: 20%;
+}
+span.tooltip {
+  color: #800000;
+}
+/* span.footnote { display:inline }
+span.footnote a:hover { background-color: #2B2E21; color:#fff }
+span.footnote a:link span, span.footnote a:visited span { display: none }
+span.footnote a:hover span.fntext { position: absolute; margin:20px; background-color: beige;
+          max-width:400px; padding: 5px 10px 5px 10px; border: 1px solid #C0C0C0;
+          font: normal 12px/14px arial; color: #000; text-align:left;
+          display: block; text-decoration:none; left:10px } */
+span.footnote:before {
+  content: " [Fußnote: ";
+  color: #505050;
+}
+span.footnote:after {
+  content: "] ";
+  color: #505050;
+}
+span.footnote {
+  color: #505050;
+  font-size: 90%;
+}
+div.epigraph {
+  margin-left: 50%;
+  margin-right: 5%;
+  font-style: italic;
+}
+div.motto p {
+  text-align: left;
+  text-indent: 0;
+  margin-right: 5em;
+}
+div.titlepage {
+  text-align: center;
+}
+.bottomnavi-gb {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+table.left {
+  margin-left: 0;
+  margin-right: auto;
+}
+table.poem {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+table.right {
+  margin-left: auto;
+  margin-right: 0;
+}
+table.toc {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.3em;
+  text-align: center;
+}
+table.toc td {
+  padding: 0 0.25em;
+  text-align: left;
+}
+table.true {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  text-align: left;
+}
+img.left {
+  float: left;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-right: 0.5em;
+}
+img.right {
+  float: right;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: 0.5em;
+}
+div.letter {
+  text-align: left;
+  margin-left: 1.5em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div.letter p {
+  text-indent: 0;
+}
+a.pageref {
+  display: none;
+}
+a.pageref:before {
+  content: "[";
+}
+a.pageref:after {
+  content: "]";
+}
+dd {
+  margin-left: 2em;
+}
+dl {
+  margin-left: 1.5em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+dt {
+  font-weight: bold;
+  margin-top: 4pt;
+}
+del {
+  color: red;
+}
+ins {
+  color: blue;
+}
+p.stars {
+  text-indent: 0;
+  text-align: center;
+  font-size: 200%;
+  letter-spacing: 0.3em;
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+sup {
+  font-size: 70%;
+  vertical-align: text-top;
+}
+sup.fract {
+  font-size: 70%;
+  vertical-align: text-top;
+}
+sub.fract {
+  font-size: 70%;
+  vertical-align: text-bottom;
+}
+tt {
+  font-family: "Courier", monospace;
+}
+ul {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div.poem {
+  text-align: left;
+  margin: 1em 2em;
+}
+div.poem blockquote {
+  text-align: left;
+  text-indent: 0;
+  margin-left: 1em;
+}
+div.poem blockquote p {
+  text-align: left;
+  text-indent: 0;
+  margin-left: 1em;
+}
+div.vers {
+  text-indent: 0;
+  text-align: left;
+  margin: 1em 2em;
+}
+div.vers p {
+  text-indent: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.anzeige-chap {
+  background-color: #eeeeee;
+  padding-top: 0.5em;
+  padding-left: 2.5em;
+  padding-right: 2.5em;
+  padding-bottom: 1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
