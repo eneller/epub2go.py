@@ -12,8 +12,8 @@ class GBConvert():
     def __init__(self,
         url:str,
         ):
-        dir_root = os.path.dirname(os.path.realpath(__file__))
-        dir_data = os.path.join(os.path.dirname(dir_root), "data/")
+        dir_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+        dir_data = os.path.join(dir_root, "data/")
         self.style_path_drama = os.path.join(dir_data, "drama.css")
         self.blocklist = open(os.path.join(dir_data, "blocklist.txt"), 'r').read().splitlines()
         self.root = os.path.dirname(url)
