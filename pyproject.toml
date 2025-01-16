@@ -9,3 +9,5 @@ dependencies = [
     "requests==2.32.3",
     "urllib3==2.2.2",
 ]
+[project.scripts]
+epub2go = "convert:main"
