@@ -418,4 +418,3 @@ wheels/
 *.css
 *.js
 *.txt
-!data/*

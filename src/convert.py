@@ -4,19 +4,21 @@ from urllib.parse import urljoin
 from urllib.request import urlopen, urlparse
 
 import os, sys
+import importlib.resources as pkg_resources
 from pathlib import Path
 class GBConvert():
     #TODO fix toc / headings
     
-    def __init__(self
-        , url:str
+    def __init__(self,
+        url:str,
         ):
-        self.dir_root = os.path.dirname(os.path.realpath(__file__))
-        self.dir_data = os.path.join(os.path.dirname(self.dir_root), "data/")
+        dir_root = os.path.dirname(os.path.realpath(__file__))
+        dir_data = os.path.join(os.path.dirname(dir_root), "data/")
+        self.style_path_drama = os.path.join(dir_data, "drama.css")
+        self.blocklist = open(os.path.join(dir_data, "blocklist.txt"), 'r').read().splitlines()
         self.root = os.path.dirname(url)
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
-        self.blocklist = open(os.path.join(self.dir_data, "blocklist.txt"), 'r').read().splitlines()
         
     def get_meta(self):
         response = requests.get(self.root)
@@ -51,7 +53,7 @@ class GBConvert():
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
-                    --css="{os.path.join(self.dir_data, "drama.css")}" \
+                    --css="{self.style_path_drama}" \
                     --metadata title="{self.title}" \
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
