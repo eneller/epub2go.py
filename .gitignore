@@ -343,3 +343,10 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/phpstorm+all,python,visualstudiocode,pycharm+all
 
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info

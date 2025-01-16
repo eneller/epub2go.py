@@ -7,13 +7,16 @@ import os, sys
 from pathlib import Path
 class GBConvert():
     #TODO fix toc / headings
+    
     def __init__(self
         , url:str
         ):
+        self.dir_root = os.path.dirname(os.path.realpath(__file__))
+        self.dir_data = os.path.join(os.path.dirname(self.dir_root), "data/")
         self.root = os.path.dirname(url)
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
-        self.blocklist = open('blocklist.txt', 'r').read().splitlines()
+        self.blocklist = open(os.path.join(self.dir_data, "blocklist.txt"), 'r').read().splitlines()
         
     def get_meta(self):
         response = requests.get(self.root)
@@ -48,7 +51,7 @@ class GBConvert():
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
-                    --css=../../../drama.css \
+                    --css="{os.path.join(self.dir_data, "drama.css")}" \
                     --metadata title="{self.title}" \
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
