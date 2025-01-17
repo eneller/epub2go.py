@@ -15,8 +15,8 @@ epub2go = "epub2go.convert:main"
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 
-[tool.setuptools.package-data]
-"epub2go" = ["blocklist.txt", "drama.css"]
+[tool.setuptools_scm]
+# can be empty if no extra settings are needed, presence enables setuptools-scm

@@ -12,10 +12,9 @@ class GBConvert():
     def __init__(self,
         url:str,
         ):
-        dir_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-        dir_data = os.path.join(dir_root, "data/")
-        self.style_path_drama = os.path.join(dir_data, "drama.css")
-        self.blocklist = open(os.path.join(dir_data, "blocklist.txt"), 'r').read().splitlines()
+        # NOTE move non-code files to data folder
+        self.style_path_drama = pkg_resources.files('epub2go').joinpath("drama.css")
+        self.blocklist = open(pkg_resources.files('epub2go').joinpath('blocklist.txt')).read().splitlines()
         self.root = os.path.dirname(url)
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
