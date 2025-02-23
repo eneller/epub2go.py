@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlopen, urlparse
+from tqdm import tqdm
 
 import os, sys
 import importlib.resources as pkg_resources
@@ -66,7 +67,7 @@ class GBConvert():
 
         map(lambda x: self.save_page(os.path.join(self.root, x['href'])), self.toc)
         self.chapters = []
-        for item in self.toc:
+        for item in tqdm(self.toc):
             item_title= item.get_text()
             item_url = os.path.join(self.root, item['href'])
             self.save_page(url=item_url)
