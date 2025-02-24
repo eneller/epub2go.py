@@ -12,13 +12,15 @@ class GBConvert():
     
     def __init__(self,
         url:str,
+        standalone = False,
         ):
         # NOTE move non-code files to data folder
         self.style_path_drama = pkg_resources.files('epub2go').joinpath("drama.css")
         self.blocklist = open(pkg_resources.files('epub2go').joinpath('blocklist.txt')).read().splitlines()
-        self.root = os.path.dirname(url)
+        self.root = os.path.dirname(url) if url.endswith('html') else url
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
+        self.standalone = standalone
         
     def get_meta(self):
         response = requests.get(self.root)
@@ -29,6 +31,7 @@ class GBConvert():
         self.toc = soup.find('ul').find_all('a')
     
     def save_page(self, url):
+        # TODO fix redownloading of shared content
         # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
         command = f'''wget \
                     --page-requisites \
@@ -67,7 +70,7 @@ class GBConvert():
 
         map(lambda x: self.save_page(os.path.join(self.root, x['href'])), self.toc)
         self.chapters = []
-        for item in tqdm(self.toc):
+        for item in (tqdm(self.toc) if self.standalone else self.toc):
             item_title= item.get_text()
             item_url = os.path.join(self.root, item['href'])
             self.save_page(url=item_url)
@@ -81,7 +84,7 @@ class GBConvert():
     
     
 def main():
-    g = GBConvert(sys.argv[1])
+    g = GBConvert(sys.argv[1], standalone=True)
     g.run()
 
 
