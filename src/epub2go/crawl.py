@@ -2,6 +2,7 @@ import requests
 from tqdm import tqdm
 
 import os
+from urllib.parse import urljoin
 
 from convert import GBConvert
 import utils
@@ -13,7 +14,7 @@ def main():
         book_title = book.get_text()
         book_url_relative = book.get('href')
         if book_url_relative is not None:
-            book_url = utils.root_url + os.path.dirname(book_url_relative)[5:]
+            book_url = urljoin(allbooks_url, book_href)
             GBConvert(book_url).run()
 
 
