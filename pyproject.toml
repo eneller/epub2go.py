@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4==4.12.3",
+    "pyfzf>=0.3.1", # hasnt been updated for some time
     "requests==2.32.3",
     "tqdm>=4.67.1",
     "urllib3==2.2.2",

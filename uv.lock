@@ -72,6 +72,7 @@ version = "1.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "pyfzf" },
     { name = "requests" },
     { name = "tqdm" },
     { name = "urllib3" },
@@ -80,6 +81,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.12.3" },
+    { name = "pyfzf", specifier = ">=0.3.1" },
     { name = "requests", specifier = "==2.32.3" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "urllib3", specifier = "==2.2.2" },
@@ -92,6 +94,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f1/70/7703c29685631f5a7590aa73f1f1d3fa9a380e654b86af429e0934a32f7d/idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9", size = 190490 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3", size = 70442 },
+]
+
+[[package]]
+name = "pyfzf"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/4c/c0c658a1e1e9f0e01932990d7947579515fe048d0a515f07458ecd992b8f/pyfzf-0.3.1.tar.gz", hash = "sha256:dd902e34cffeca9c3082f96131593dd20b4b3a9bba5b9dde1b0688e424b46bd2", size = 3652 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/35/6a6c7b95390ec58904646a04f54e1b56fd57d7a247588b791c6331697797/pyfzf-0.3.1-py3-none-any.whl", hash = "sha256:736f71563461b75f6f85b55345bdc638fa0dc14c32c857c59e8b1ca1cfa3cf4a", size = 4315 },
 ]
 
 [[package]]

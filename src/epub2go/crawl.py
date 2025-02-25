@@ -8,7 +8,7 @@ from convert import GBConvert
 import utils
 
 def main():
-    books = utils.get_all_book_urls()
+    books = utils.get_all_book_tags()
     # NOTE consider making this a map()
     for book in tqdm(books):
         book_title = book.get_text()
