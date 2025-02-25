@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render 
 import requests
 
-import utils
+from convert import GBConvert, allbooks_url
 import json
 DEBUG = True
 ROOT_URLCONF = __name__

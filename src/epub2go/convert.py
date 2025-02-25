@@ -37,12 +37,11 @@ class GBConvert():
         self.toc = soup.find('ul').find_all('a')
     
     def save_page(self, url):
-        # TODO fix redownloading of shared content
         # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
         command = f'''wget \
+                    --timestamping \
                     --page-requisites \
                     --convert-links \
-                    --execute \
                     --tries=5 \
                     --quiet \
                     {url}'''
