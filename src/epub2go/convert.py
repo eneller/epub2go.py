@@ -87,15 +87,33 @@ class GBConvert():
         self.create_epub(f'{self.title} - {self.author}.epub')
         
 def get_all_books() -> list:
-    books = get_all_book_tags()
-    d = []
-    for book in books:
-        book_href = book.get('href')
-        if book_href is not None:
-            book_url = urljoin(allbooks_url, book_href)
-            book_title = book.getText().translate(str.maketrans('','', '\n\t'))
-            d.append({'title': book_title, 'url': book_url})
-    return d
+    response = requests.get(allbooks_url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, 'html.parser', from_encoding='utf-8')
+    tags = soup.find('dl').findChildren()
+    books = []
+    for tag in tags:
+        # is description tag, i.e. contains author name
+        if tag.name =='dt':
+            # update author
+            # special case when author name and Alphabetical list is in same tag
+            br_tag = tag.find('br')
+            if br_tag:
+                book_author = str(br_tag.next_sibling)
+            # default case, dt only contains author name
+            else:
+                book_author = tag.get_text(strip=True)
+            book_author = ' '.join(book_author.split())
+        # is details tag, contains book url
+        elif tag.name == 'dd':
+            book_tag = tag.a
+            if book_tag:
+                book_href = book_tag.get('href')
+                book_url = urljoin(allbooks_url, book_href)
+                book_title = ' '.join(book_tag.getText().split())
+                book = {'author': book_author, 'title': book_title, 'url': book_url}
+                books.append(book)
+    return books
 
 def get_all_book_tags ()-> ResultSet:
     response = requests.get(allbooks_url)
@@ -113,8 +131,7 @@ def main():
     else:
         delimiter = ';'
         # create lines for fzf
-        # TODO display author
-        books = [f"{item['title']} {delimiter} {item['url']}" for item in get_all_books()]
+        books = [f"{item['author']} - {item['title']} {delimiter} {item['url']}" for item in get_all_books()]
         fzf = FzfPrompt()
         selection = fzf.prompt(choices=books,  fzf_options=r'--exact --with-nth 1 -m -d\;')
         books = [item.split(';')[1].strip() for item in selection]
