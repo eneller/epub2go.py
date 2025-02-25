@@ -1,6 +1,6 @@
 # run using `django-admin runserver --pythonpath=. --settings=web`
 from django.urls import path
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import redirect, render 
 import requests
 
@@ -18,11 +18,21 @@ TEMPLATES = [
         },
     ]
 
-def home(request):
+def root(request: HttpRequest):
     title = 'epub2go'
-    items = json.load(open('dict.json', 'r'))
+    targetParam = request.GET.get('t', None)
+    if targetParam is not None:
+        getEpub(targetParam)
     return render(request, 'index.html', locals())
 
 urlpatterns = [
-    path('', home, name='homepage'),
+    path('', root, name='root'),
 ]
+
+def getEpub(param):
+    # TODO validate / sanitize input
+    # TODO check for existing file and age
+    # TODO download
+    # TODO redirect to loading page
+    # TODO redirect to download page
+    raise NotImplementedError
