@@ -13,6 +13,6 @@ epub2go https://www.projekt-gutenberg.org/ibsen/solness/
 ## Installation
    Assuming you have a recent version of python installed, run
    ```
-   pip install git+https://github.com/eneller/epub2go.py@latest
+   pip install git+https://github.com/eneller/epub2go.py
    ```
    This will provide the 'epub2go' command.
