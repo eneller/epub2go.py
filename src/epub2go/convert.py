@@ -8,14 +8,19 @@ from pyfzf.pyfzf import FzfPrompt
 
 import os, sys, subprocess, shlex
 import importlib.resources as pkg_resources
+from dataclasses import dataclass
+from typing import List
 
 
 allbooks_url ='https://www.projekt-gutenberg.org/info/texte/allworka.html'
 root_url = '{url.scheme}://{url.netloc}'.format(url = urlparse(allbooks_url))
 
+@dataclass
+class Book():
+    author: str
+    title: str
+    url: str
 class GBConvert():
-    #TODO fix toc / headings
-    
     def __init__(self,
         url:str,
         standalone = False,
@@ -52,6 +57,8 @@ class GBConvert():
 
 
     def create_epub(self,  filename='out.epub'):
+        #TODO --epub-cover-image
+        #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
@@ -59,7 +66,7 @@ class GBConvert():
                     --metadata title="{self.title}" \
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
-                    {" ".join(self.chapters)} '''#TODO --epub-cover-image
+                    {" ".join(self.chapters)} '''
         return subprocess.Popen(shlex.split(command), cwd=self.output)
 
     def save_page(self, url):
@@ -87,7 +94,7 @@ class GBConvert():
         return self.create_epub(f'{self.title} - {self.author}.epub')
 
 # get a list of all books for interactive selection or scraping
-def get_all_books() -> list:
+def get_all_books() -> List[Book]:
     response = requests.get(allbooks_url)
     response.raise_for_status()
     soup = BeautifulSoup(response.content, 'html.parser', from_encoding='utf-8')
@@ -112,7 +119,7 @@ def get_all_books() -> list:
                 book_href = book_tag.get('href')
                 book_url = urljoin(allbooks_url, book_href)
                 book_title = ' '.join(book_tag.getText().split())
-                book = {'author': book_author, 'title': book_title, 'url': book_url}
+                book = Book(book_author, book_title, book_url)
                 books.append(book)
     return books
 
@@ -126,7 +133,7 @@ def main():
     else:
         delimiter = ';'
         # create lines for fzf
-        books = [f"{item['author']} - {item['title']} {delimiter} {item['url']}" for item in get_all_books()]
+        books = [f"{ item.author } - { item.title } {delimiter} { item.url }" for item in get_all_books()]
         fzf = FzfPrompt()
         selection = fzf.prompt(choices=books,  fzf_options=r'--exact --with-nth 1 -m -d\;')
         books = [item.split(';')[1].strip() for item in selection]
