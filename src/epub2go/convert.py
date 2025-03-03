@@ -6,7 +6,7 @@ from urllib.request import  urlparse
 from tqdm import tqdm
 from pyfzf.pyfzf import FzfPrompt
 
-import os, sys
+import os, sys, subprocess, shlex
 import importlib.resources as pkg_resources
 
 
@@ -52,7 +52,6 @@ class GBConvert():
 
 
     def create_epub(self,  filename='out.epub'):
-        os.chdir(self.output)
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
@@ -61,7 +60,7 @@ class GBConvert():
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
                     {" ".join(self.chapters)} '''#TODO --epub-cover-image
-        os.system(command)
+        return subprocess.Popen(shlex.split(command), cwd=self.output)
 
     def save_page(self, url):
         # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
@@ -85,9 +84,9 @@ class GBConvert():
             self.parse_page(filepath)
             self.chapters.append(os.path.basename(item_url))
         
-        self.create_epub(f'{self.title} - {self.author}.epub')
+        return self.create_epub(f'{self.title} - {self.author}.epub')
 
-# Methods used to get a list of all books for interactive selection or scraping
+# get a list of all books for interactive selection or scraping
 def get_all_books() -> list:
     response = requests.get(allbooks_url)
     response.raise_for_status()
