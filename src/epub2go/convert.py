@@ -27,27 +27,22 @@ class GBConvert():
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
         self.standalone = standalone
+        self.chapters = []
         
-    def get_meta(self):
+    def parse_meta(self):
         response = requests.get(self.root)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         self.author = soup.find('meta', {'name': 'author'})['content']
         self.title = soup.find('meta', {'name': 'title'})['content']
         self.toc = soup.find('ul').find_all('a')
-    
-    def save_page(self, url):
-        # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
-        command = f'''wget \
-                    --timestamping \
-                    --page-requisites \
-                    --convert-links \
-                    --tries=5 \
-                    --quiet \
-                    {url}'''
-        os.system(command)
+        
+    def parse_toc_entry(self, entry):
+        url = os.path.join(self.root, entry['href'])
+        self.save_page(url)
+        return url
 
-    def clean_page(self,file_path):
+    def parse_page(self,file_path):
         f = open(file_path, 'r').read()
         soup = BeautifulSoup(f, 'html.parser')
         for blocker in self.blocklist:
@@ -68,24 +63,31 @@ class GBConvert():
                     {" ".join(self.chapters)} '''#TODO --epub-cover-image
         os.system(command)
 
+    def save_page(self, url):
+        # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
+        command = f'''wget \
+                    --timestamping \
+                    --page-requisites \
+                    --convert-links \
+                    --tries=5 \
+                    --quiet \
+                    {url}'''
+        os.system(command)
     def run(self):
         #TODO include images flag
 
-        self.get_meta()
-
-        map(lambda x: self.save_page(os.path.join(self.root, x['href'])), self.toc)
-        self.chapters = []
+        self.parse_meta()
+        # download all files in toc (chapters)
         for item in (tqdm(self.toc) if self.standalone else self.toc):
-            item_title= item.get_text()
-            item_url = os.path.join(self.root, item['href'])
-            self.save_page(url=item_url)
+            item_url = self.parse_toc_entry(item)
             parsed_url = urlparse(item_url)
             filepath = parsed_url.netloc + parsed_url.path
-            self.clean_page(filepath)
-            self.chapters.append(item['href'])
+            self.parse_page(filepath)
+            self.chapters.append(os.path.basename(item_url))
         
         self.create_epub(f'{self.title} - {self.author}.epub')
-        
+
+# Methods used to get a list of all books for interactive selection or scraping
 def get_all_books() -> list:
     response = requests.get(allbooks_url)
     response.raise_for_status()
@@ -122,6 +124,7 @@ def get_all_book_tags ()-> ResultSet:
     books = soup.find('dl').find_all('a')
     return books
     
+# run main cli
 def main():
     sys.argv.pop(0)
     # non-interactive mode
