@@ -116,13 +116,6 @@ def get_all_books() -> list:
                 books.append(book)
     return books
 
-def get_all_book_tags ()-> ResultSet:
-    response = requests.get(allbooks_url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, 'html.parser', from_encoding='utf-8')
-    books = soup.find('dl').find_all('a')
-    return books
-    
 # run main cli
 def main():
     sys.argv.pop(0)
