@@ -23,23 +23,39 @@ class Book():
 class GBConvert():
     def __init__(self,
         url:str,
+        author:str = None,
+        title:str = None,
         standalone = False,
         ):
         # NOTE move non-code files to data folder
         self.style_path_drama = pkg_resources.files('epub2go').joinpath("drama.css")
-        self.blocklist = open(pkg_resources.files('epub2go').joinpath('blocklist.txt')).read().splitlines()
+        with open(pkg_resources.files('epub2go').joinpath('blocklist.txt')) as blocklist:
+            self.blocklist = blocklist.read().splitlines()
         self.root = os.path.dirname(url)
         self.url = urlparse(self.root)
         self.output = self.url.netloc + self.url.path
         self.standalone = standalone
+        self.author = author
+        self.title = title
         self.chapters = []
+
+        self.parse_meta()
         
     def parse_meta(self):
         response = requests.get(self.root)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
-        self.author = soup.find('meta', {'name': 'author'})['content']
-        self.title = soup.find('meta', {'name': 'title'})['content']
+        # TODO allow setting these from interactive mode where those parameters are figured out from the list
+        if not self.author:
+            try:
+                self.author = soup.find('meta', {'name': 'author'})['content']
+            except:
+                self.author = "UnknownAuthor"
+        if not self.title:
+            try:
+                self.title = soup.find('meta', {'name': 'title'})['content']
+            except:
+                self.title = "UnknownTitle"
         self.toc = soup.find('ul').find_all('a')
         
     def parse_toc_entry(self, entry):
@@ -47,16 +63,17 @@ class GBConvert():
         self.save_page(url)
         return url
 
+    # apply blocklist to file
     def parse_page(self,file_path):
-        f = open(file_path, 'r').read()
-        soup = BeautifulSoup(f, 'html.parser')
-        for blocker in self.blocklist:
-            for item in soup.select(blocker):
-                item.decompose()
-        open(file_path, 'w').write(str(soup))
+        #TODO clean up file opening, mmap?
+        with open(file_path, 'r+') as f:
+            soup = BeautifulSoup(f.read(), 'html.parser')
+            for blocker in self.blocklist:
+                for item in soup.select(blocker):
+                    item.decompose()
+            f.write(str(soup))
 
-
-    def create_epub(self,  filename='out.epub'):
+    def create_epub(self,  filename='out.epub')-> int:
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
         command = f'''pandoc -f html -t epub \
@@ -67,7 +84,7 @@ class GBConvert():
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
                     {" ".join(self.chapters)} '''
-        return subprocess.Popen(shlex.split(command), cwd=self.output)
+        return subprocess.Popen(shlex.split(command), cwd=self.output).returncode
 
     def save_page(self, url):
         # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
@@ -82,7 +99,6 @@ class GBConvert():
     def run(self):
         #TODO include images flag
 
-        self.parse_meta()
         # download all files in toc (chapters)
         for item in (tqdm(self.toc) if self.standalone else self.toc):
             item_url = self.parse_toc_entry(item)
