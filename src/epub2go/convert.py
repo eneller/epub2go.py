@@ -5,8 +5,9 @@ from urllib.parse import urljoin
 from urllib.request import  urlparse
 from tqdm import tqdm
 from pyfzf.pyfzf import FzfPrompt
+import click
 
-import os, sys, subprocess, shlex, logging
+import os, subprocess, shlex, logging
 import importlib.resources as pkg_resources
 from dataclasses import dataclass
 from typing import List
@@ -147,12 +148,20 @@ def get_all_books() -> List[Book]:
     return books
 
 # run main cli
-def main():
-    logging.basicConfig(level=logging.NOTSET,format='%(asctime)s - %(levelname)s - %(message)s')
-    sys.argv.pop(0)
+@click.command()
+@click.option('--debug', '-d', is_flag=True, help='Set the log level to DEBUG')
+@click.option('--silent', '-s', is_flag=True, help='Disable the progress bar')
+@click.argument('args', nargs=-1)
+def main(args, debug, silent):
+    '''
+    Download ePUBs from https://www.projekt-gutenberg.org/
+    Provide either 0 arguments to enter interactive mode or an arbitrary number of URLs to download from
+    '''
+    logging.basicConfig(level=logging.ERROR,format='%(asctime)s - %(levelname)s - %(message)s')
+    if(debug): logger.setLevel(logging.DEBUG)
     # non-interactive mode
-    if len(sys.argv) > 0 :
-        books = sys.argv
+    if len(args) > 0 :
+        books = args
     # interactive mode using fzf
     else:
         logger.debug('Received no CLI arguments, starting interactive mode')
@@ -163,11 +172,11 @@ def main():
         selection = fzf.prompt(choices=books,  fzf_options=r'--exact --with-nth 1 -m -d\;')
         books = [item.split(';')[1].strip() for item in selection]
 
-    logger.debug('Attempting to download from %d URLs', len(books))
+    logger.debug('Attempting to download from %d URL(s)', len(books))
     if len(books)==1:
-        GBConvert(books[0], showprogress=True).run()
+        GBConvert(books[0], showprogress=not silent).run()
     else:
-        for book in tqdm(books):
+        for book in (tqdm(books) if not silent else books):
                 GBConvert(book).run()
 if __name__ == "__main__":
     main()
