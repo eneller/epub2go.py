@@ -25,6 +25,7 @@ class GBConvert():
         url:str,
         author:str = None,
         title:str = None,
+        downloaddir = './',
         showprogress:bool = False,
         ):
         # NOTE move non-code files to data folder
@@ -32,8 +33,10 @@ class GBConvert():
         with open(pkg_resources.files('epub2go').joinpath('blocklist.txt')) as blocklist:
             self.blocklist = blocklist.read().splitlines()
         self.tocpage = os.path.dirname(url) # ToC website url
-        self.url = urlparse(self.tocpage)
-        self.output = self.url.netloc + self.url.path # directories created by wget recreating the URL
+        url = urlparse(self.tocpage)
+        self.dir_download = downloaddir
+        self.dir_output = os.path.join(self.dir_download, url.netloc + url.path )# directories created by wget recreating the URL
+        logger.debug('Downloading in %s, expecting files in in %s', self.dir_download, self.dir_output)
         self.showprogress = showprogress
         self.author = author
         self.title = title
@@ -87,7 +90,7 @@ class GBConvert():
                     --metadata author="{self.author}" \
                     --epub-title-page=false \
                     {" ".join(self.chapters)} '''
-        return subprocess.Popen(shlex.split(command), cwd=self.output).returncode
+        return subprocess.run(shlex.split(command), cwd=self.dir_output).returncode
 
     def save_page(self, url):
         logger.debug('Saving page at %s', url)
@@ -99,7 +102,7 @@ class GBConvert():
                     --tries=5 \
                     --quiet \
                     {url}'''
-        os.system(command)
+        return subprocess.run(shlex.split(command), cwd=self.dir_download).returncode
     def run(self):
         #TODO include images flag
 
@@ -107,7 +110,7 @@ class GBConvert():
         for item in (tqdm(self.toc) if self.showprogress else self.toc):
             item_url = self.parse_toc_entry(item)
             parsed_url = urlparse(item_url)
-            filepath = parsed_url.netloc + parsed_url.path
+            filepath = os.path.join(self.dir_download, parsed_url.netloc + parsed_url.path)
             self.parse_page(filepath)
             self.chapters.append(os.path.basename(item_url))
         
