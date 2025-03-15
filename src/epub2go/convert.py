@@ -6,14 +6,14 @@ from urllib.request import  urlparse
 from tqdm import tqdm
 from pyfzf.pyfzf import FzfPrompt
 
-import os, sys, subprocess, shlex
+import os, sys, subprocess, shlex, logging
 import importlib.resources as pkg_resources
 from dataclasses import dataclass
 from typing import List
 
+logger = logging.getLogger(__name__)
 
 allbooks_url ='https://www.projekt-gutenberg.org/info/texte/allworka.html'
-root_url = '{url.scheme}://{url.netloc}'.format(url = urlparse(allbooks_url))
 
 @dataclass
 class Book():
@@ -25,16 +25,16 @@ class GBConvert():
         url:str,
         author:str = None,
         title:str = None,
-        standalone = False,
+        showprogress:bool = False,
         ):
         # NOTE move non-code files to data folder
         self.style_path_drama = pkg_resources.files('epub2go').joinpath("drama.css")
         with open(pkg_resources.files('epub2go').joinpath('blocklist.txt')) as blocklist:
             self.blocklist = blocklist.read().splitlines()
-        self.root = os.path.dirname(url)
-        self.url = urlparse(self.root)
-        self.output = self.url.netloc + self.url.path
-        self.standalone = standalone
+        self.tocpage = os.path.dirname(url) # ToC website url
+        self.url = urlparse(self.tocpage)
+        self.output = self.url.netloc + self.url.path # directories created by wget recreating the URL
+        self.showprogress = showprogress
         self.author = author
         self.title = title
         self.chapters = []
@@ -42,7 +42,7 @@ class GBConvert():
         self.parse_meta()
         
     def parse_meta(self):
-        response = requests.get(self.root)
+        response = requests.get(self.tocpage)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         # TODO allow setting these from interactive mode where those parameters are figured out from the list
@@ -57,15 +57,17 @@ class GBConvert():
             except:
                 self.title = "UnknownTitle"
         self.toc = soup.find('ul').find_all('a')
+        logger.debug('Found ToC with %d entries', len(self.toc))
         
     def parse_toc_entry(self, entry):
-        url = os.path.join(self.root, entry['href'])
+        url = os.path.join(self.tocpage, entry['href'])
         self.save_page(url)
         return url
 
     # apply blocklist to file
     def parse_page(self,file_path):
         #TODO clean up file opening, mmap?
+        logger.debug('Parsing page at %s', file_path)
         with open(file_path, 'r+') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
             for blocker in self.blocklist:
@@ -76,6 +78,7 @@ class GBConvert():
     def create_epub(self,  filename='out.epub')-> int:
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
+        logger.debug('Creating epub as "%s"',filename)
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
@@ -87,6 +90,7 @@ class GBConvert():
         return subprocess.Popen(shlex.split(command), cwd=self.output).returncode
 
     def save_page(self, url):
+        logger.debug('Saving page at %s', url)
         # https://superuser.com/questions/970323/using-wget-to-copy-website-with-proper-layout-for-offline-browsing
         command = f'''wget \
                     --timestamping \
@@ -100,7 +104,7 @@ class GBConvert():
         #TODO include images flag
 
         # download all files in toc (chapters)
-        for item in (tqdm(self.toc) if self.standalone else self.toc):
+        for item in (tqdm(self.toc) if self.showprogress else self.toc):
             item_url = self.parse_toc_entry(item)
             parsed_url = urlparse(item_url)
             filepath = parsed_url.netloc + parsed_url.path
@@ -141,12 +145,14 @@ def get_all_books() -> List[Book]:
 
 # run main cli
 def main():
+    logging.basicConfig(level=logging.NOTSET,format='%(asctime)s - %(levelname)s - %(message)s')
     sys.argv.pop(0)
     # non-interactive mode
     if len(sys.argv) > 0 :
         books = sys.argv
     # interactive mode using fzf
     else:
+        logger.debug('Received no CLI arguments, starting interactive mode')
         delimiter = ';'
         # create lines for fzf
         books = [f"{ item.author } - { item.title } {delimiter} { item.url }" for item in get_all_books()]
@@ -154,8 +160,9 @@ def main():
         selection = fzf.prompt(choices=books,  fzf_options=r'--exact --with-nth 1 -m -d\;')
         books = [item.split(';')[1].strip() for item in selection]
 
+    logger.debug('Attempting to download from %d URLs', len(books))
     if len(books)==1:
-        GBConvert(books[0], standalone=True).run()
+        GBConvert(books[0], showprogress=True).run()
     else:
         for book in tqdm(books):
                 GBConvert(book).run()
