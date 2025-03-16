@@ -23,75 +23,93 @@ class Book():
     url: str
 class GBConvert():
     def __init__(self,
-        url:str,
-        author:str = None,
-        title:str = None,
-        downloaddir = './',
-        showprogress:bool = False,
+        downloaddir,
         ):
         # NOTE move non-code files to data folder
         self.style_path_drama = pkg_resources.files('epub2go').joinpath("drama.css")
         with open(pkg_resources.files('epub2go').joinpath('blocklist.txt')) as blocklist:
             self.blocklist = blocklist.read().splitlines()
-        self.tocpage = os.path.dirname(url) # ToC website url
-        url = urlparse(self.tocpage)
         self.dir_download = downloaddir
-        self.dir_output = os.path.join(self.dir_download, url.netloc + url.path )# directories created by wget recreating the URL
-        logger.debug('Downloading in %s, expecting files in in %s', self.dir_download, self.dir_output)
-        self.showprogress = showprogress
-        self.author = author
-        self.title = title
-        self.chapters = []
 
-        self.parse_meta()
-        
-    def parse_meta(self):
-        response = requests.get(self.tocpage)
+    def download(self,
+        url:str,
+        author:str = None,
+        title:str = None,
+        showprogress: bool = False,
+        cleanpages: bool = True,
+    ):
+        tocpage = os.path.dirname(url) # ToC website url
+        url = urlparse(tocpage)
+        dir_output = os.path.join(self.dir_download, url.netloc + url.path )# directories created by wget recreating the URL
+        logger.debug('Downloading to %s, expecting files in in %s', self.dir_download, dir_output)
+        author = author
+        title = title
+
+        #parse_meta
+        response = requests.get(tocpage)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         # TODO allow setting these from interactive mode where those parameters are figured out from the list
-        if not self.author:
+        if not author:
             try:
-                self.author = soup.find('meta', {'name': 'author'})['content']
+                author = soup.find('meta', {'name': 'author'})['content']
             except:
-                self.author = "UnknownAuthor"
-        if not self.title:
+                author = "UnknownAuthor"
+        if not title:
             try:
-                self.title = soup.find('meta', {'name': 'title'})['content']
+                title = soup.find('meta', {'name': 'title'})['content']
             except:
-                self.title = "UnknownTitle"
-        self.toc = soup.find('ul').find_all('a')
-        logger.debug('Found ToC with %d entries', len(self.toc))
+                title = "UnknownTitle"
+        chapter_urls = soup.find('ul').find_all('a')
+        logger.debug('Found ToC with %d entries', len(chapter_urls))
+
+        #run
+        #TODO include images flag
+        # download all files in toc (chapters)
+        chapter_files = []
+        for item in (tqdm(chapter_urls) if showprogress else chapter_urls):
+            item_url = self.parse_toc_entry(tocpage, item)
+            parsed_url = urlparse(item_url)
+            filepath = os.path.join(self.dir_download, parsed_url.netloc + parsed_url.path)
+            if cleanpages: self.parse_page(filepath)
+            chapter_files.append(os.path.basename(item_url))
         
-    def parse_toc_entry(self, entry):
-        url = os.path.join(self.tocpage, entry['href'])
+        return self.create_epub(author,title,chapter_files,dir_output)
+        
+    def parse_toc_entry(self, tocpage, entry):
+        url = os.path.join(tocpage, entry['href'])
         self.save_page(url)
         return url
 
     # apply blocklist to file
     def parse_page(self,file_path):
         #TODO clean up file opening, mmap?
-        logger.debug('Parsing page at %s', file_path)
+        count=0
         with open(file_path, 'r+') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
             for blocker in self.blocklist:
                 for item in soup.select(blocker):
                     item.decompose()
+                    count+=1
+            f.seek(0)
+            f.truncate()
             f.write(str(soup))
+        logger.debug('Removed %d tags from page %s during parsing', count, file_path)
 
-    def create_epub(self,  filename='out.epub')-> int:
+    def create_epub(self, author, title, chapters, dir_output)-> int:
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
+        filename = f'{title} - {author}.epub'
         logger.debug('Creating epub as "%s"',filename)
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
                     --css="{self.style_path_drama}" \
-                    --metadata title="{self.title}" \
-                    --metadata author="{self.author}" \
+                    --metadata title="{title}" \
+                    --metadata author="{author}" \
                     --epub-title-page=false \
-                    {" ".join(self.chapters)} '''
-        return subprocess.run(shlex.split(command), cwd=self.dir_output).returncode
+                    {" ".join(chapters)} '''
+        return subprocess.run(shlex.split(command), cwd=dir_output).returncode
 
     def save_page(self, url):
         logger.debug('Saving page at %s', url)
@@ -104,18 +122,6 @@ class GBConvert():
                     --quiet \
                     {url}'''
         return subprocess.run(shlex.split(command), cwd=self.dir_download).returncode
-    def run(self):
-        #TODO include images flag
-
-        # download all files in toc (chapters)
-        for item in (tqdm(self.toc) if self.showprogress else self.toc):
-            item_url = self.parse_toc_entry(item)
-            parsed_url = urlparse(item_url)
-            filepath = os.path.join(self.dir_download, parsed_url.netloc + parsed_url.path)
-            self.parse_page(filepath)
-            self.chapters.append(os.path.basename(item_url))
-        
-        return self.create_epub(f'{self.title} - {self.author}.epub')
 
 # get a list of all books for interactive selection or scraping
 def get_all_books() -> List[Book]:
@@ -149,10 +155,13 @@ def get_all_books() -> List[Book]:
 
 # run main cli
 @click.command()
+#TODO include images flag
 @click.option('--debug', '-d', is_flag=True, help='Set the log level to DEBUG')
 @click.option('--silent', '-s', is_flag=True, help='Disable the progress bar')
+@click.option('--path','-p',type=str,default='./', help='The path to which files are saved' )
+@click.option('--no-clean',is_flag=True,help='Do not parse html files with blocklist')
 @click.argument('args', nargs=-1)
-def main(args, debug, silent):
+def main(args, debug, silent, path, no_clean):
     '''
     Download ePUBs from https://www.projekt-gutenberg.org/
     Provide either 0 arguments to enter interactive mode or an arbitrary number of URLs to download from
@@ -173,10 +182,12 @@ def main(args, debug, silent):
         books = [item.split(';')[1].strip() for item in selection]
 
     logger.debug('Attempting to download from %d URL(s)', len(books))
+    converter = GBConvert(path)
     if len(books)==1:
-        GBConvert(books[0], showprogress=not silent).run()
+        converter.download(books[0], showprogress=not silent, cleanpages= not no_clean)
     else:
         for book in (tqdm(books) if not silent else books):
-                GBConvert(book).run()
+            converter.download(book, cleanpages= not no_clean)
+
 if __name__ == "__main__":
     main()
