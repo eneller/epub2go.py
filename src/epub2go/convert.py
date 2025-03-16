@@ -96,7 +96,7 @@ class GBConvert():
             f.write(str(soup))
         logger.debug('Removed %d tags from page %s during parsing', count, file_path)
 
-    def create_epub(self, author, title, chapters, dir_output)-> int:
+    def create_epub(self, author, title, chapters, dir_output):
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
         filename = f'{title} - {author}.epub'
@@ -109,7 +109,8 @@ class GBConvert():
                     --metadata author="{author}" \
                     --epub-title-page=false \
                     {" ".join(chapters)} '''
-        return subprocess.run(shlex.split(command), cwd=dir_output).returncode
+        subprocess.run(shlex.split(command), cwd=dir_output, check=True)
+        return os.path.abspath(os.path.join(dir_output,filename))
 
     def save_page(self, url):
         logger.debug('Saving page at %s', url)
@@ -121,7 +122,7 @@ class GBConvert():
                     --tries=5 \
                     --quiet \
                     {url}'''
-        return subprocess.run(shlex.split(command), cwd=self.dir_download).returncode
+        subprocess.run(shlex.split(command), cwd=self.dir_download, check=True)
 
 # get a list of all books for interactive selection or scraping
 def get_all_books() -> List[Book]:
