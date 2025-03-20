@@ -164,7 +164,7 @@ def get_all_books() -> List[Book]:
 @click.argument('args', nargs=-1)
 def main(args, debug, silent, path, no_clean):
     '''
-    Download ePUBs from https://www.projekt-gutenberg.org/
+    Download ePUBs from https://www.projekt-gutenberg.org/ \n
     Provide either 0 arguments to enter interactive mode or an arbitrary number of URLs to download from
     '''
     logging.basicConfig(level=logging.ERROR,format='%(asctime)s - %(levelname)s - %(message)s')
