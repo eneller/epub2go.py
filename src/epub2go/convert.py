@@ -31,6 +31,13 @@ class GBConvert():
             self.blocklist = blocklist.read().splitlines()
         self.dir_download = downloaddir
 
+    def getDir(self, url):
+        tocpage = os.path.dirname(url) # ToC website url
+        parsed_url = urlparse(tocpage)
+        # directories created by wget recreating the URL
+        dir_output = os.path.join(self.dir_download, parsed_url.netloc + parsed_url.path )
+        return dir_output
+        
     def download(self,
         url:str,
         author:str = None,
@@ -39,8 +46,7 @@ class GBConvert():
         cleanpages: bool = True,
     ):
         tocpage = os.path.dirname(url) # ToC website url
-        url = urlparse(tocpage)
-        dir_output = os.path.join(self.dir_download, url.netloc + url.path )# directories created by wget recreating the URL
+        dir_output = self.getDir()
         logger.debug('Downloading to %s, expecting files in in %s', self.dir_download, dir_output)
         author = author
         title = title
