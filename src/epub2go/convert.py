@@ -46,7 +46,7 @@ class GBConvert():
         cleanpages: bool = True,
     ):
         tocpage = os.path.dirname(url) # ToC website url
-        dir_output = self.getDir()
+        dir_output = self.getDir(url)
         logger.debug('Downloading to %s, expecting files in in %s', self.dir_download, dir_output)
         author = author
         title = title
