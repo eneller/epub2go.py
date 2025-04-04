@@ -106,7 +106,6 @@ class GBConvert():
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
         filename = f'{title} - {author}.epub'
-        logger.debug('Creating epub as "%s"',filename)
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
@@ -115,6 +114,7 @@ class GBConvert():
                     --metadata author="{author}" \
                     --epub-title-page=false \
                     {" ".join(chapters)} '''
+        logger.debug('Calling "%s"', command)
         subprocess.run(shlex.split(command), cwd=dir_output, check=True)
         return os.path.abspath(os.path.join(dir_output,filename))
 
