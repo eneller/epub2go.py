@@ -7,7 +7,7 @@ from tqdm import tqdm
 from pyfzf.pyfzf import FzfPrompt
 import click
 
-import os, subprocess, shlex, logging
+import os, subprocess, shlex, logging, re
 import importlib.resources as pkg_resources
 from dataclasses import dataclass
 from typing import List
@@ -105,7 +105,7 @@ class GBConvert():
     def create_epub(self, author, title, chapters, dir_output):
         #TODO --epub-cover-image
         #TODO toc if it isnt described by <h> tags, e.g. https://www.projekt-gutenberg.org/adlersfe/maskenba/
-        filename = f'{title} - {author}.epub'
+        filename = slugify(f'{title} - {author}.epub')
         command = f'''pandoc -f html -t epub \
                     -o "{filename}" \
                     --reference-location=section \
@@ -159,6 +159,13 @@ def get_all_books() -> List[Book]:
                 book = Book(book_author, book_title, book_url)
                 books.append(book)
     return books
+
+def slugify(value, replacement='_'):
+    value = re.sub(r'[<>:"/\\|?*\x00-\x1F]', replacement, value)
+    # Remove leading/trailing whitespace or dots
+    value = value.strip().strip(".")
+    # Optionally truncate to safe length (e.g. 255 chars for most filesystems)
+    return value[:255] or "untitled"
 
 # run main cli
 @click.command()

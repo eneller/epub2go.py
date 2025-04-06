@@ -1,6 +1,6 @@
 [project]
 name = "epub2go"
-version = "2.2.2"
+version = "2.2.3"
 description = "EPUB converter using wget, pandoc and python glue"
 readme = "README.md"
 requires-python = ">=3.12"
