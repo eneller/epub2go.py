@@ -8,6 +8,7 @@ from pyfzf.pyfzf import FzfPrompt
 import click
 
 import os, subprocess, shlex, logging, re
+import concurrent.futures
 import importlib.resources as pkg_resources
 from dataclasses import dataclass
 from typing import List
@@ -44,6 +45,7 @@ class GBConvert():
         title:str = None,
         showprogress: bool = False,
         cleanpages: bool = True,
+        max_workers: int = 10,
     ):
         tocpage = os.path.dirname(url) # ToC website url
         dir_output = self.getDir(url)
@@ -72,13 +74,22 @@ class GBConvert():
         #run
         #TODO include images flag
         # download all files in toc (chapters)
-        chapter_files = []
-        for item in (tqdm(chapter_urls) if showprogress else chapter_urls):
+        def process_item(item):
             item_url = self.parse_toc_entry(tocpage, item)
             parsed_url = urlparse(item_url)
             filepath = os.path.join(self.dir_download, parsed_url.netloc + parsed_url.path)
-            if cleanpages: self.parse_page(filepath)
-            chapter_files.append(os.path.basename(item_url))
+            if cleanpages:
+                self.parse_page(filepath)
+            return os.path.basename(item_url)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            items = tqdm(chapter_urls) if showprogress else chapter_urls
+            for item in items:
+                futures.append(executor.submit(process_item, item))
+
+            # Wait for completion and preserve order
+            chapter_files = [future.result() for future in futures]
         
         return self.create_epub(author,title,chapter_files,dir_output)
         
@@ -174,8 +185,9 @@ def slugify(value, replacement='_'):
 @click.option('--silent', '-s', is_flag=True, help='Disable the progress bar')
 @click.option('--path','-p',type=str,default='./', help='The path to which files are saved' )
 @click.option('--no-clean',is_flag=True,help='Do not parse html files with blocklist')
+@click.option('--max-workers', '-w', type=int, default=10, help='Number of concurrent download workers')
 @click.argument('args', nargs=-1)
-def main(args, debug, silent, path, no_clean):
+def main(args, debug, silent, path, no_clean, max_workers):
     '''
     Download ePUBs from https://www.projekt-gutenberg.org/ \n
     Provide either 0 arguments to enter interactive mode or an arbitrary number of URLs to download from
@@ -198,10 +210,10 @@ def main(args, debug, silent, path, no_clean):
     logger.debug('Attempting to download from %d URL(s)', len(books))
     converter = GBConvert(path)
     if len(books)==1:
-        converter.download(books[0], showprogress=not silent, cleanpages= not no_clean)
+        converter.download(books[0], showprogress=not silent, cleanpages= not no_clean, max_workers=max_workers)
     else:
         for book in (tqdm(books) if not silent else books):
-            converter.download(book, cleanpages= not no_clean)
+            converter.download(book, cleanpages= not no_clean, max_workers=max_workers)
 
 if __name__ == "__main__":
     main()
