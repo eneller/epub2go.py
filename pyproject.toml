@@ -21,5 +21,10 @@ include-package-data = true
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]
 
+[dependency-groups]
+dev = [
+    "basedpyright>=1.28.5",
+]
+
 [tool.setuptools_scm]
 # can be empty if no extra settings are needed, presence enables setuptools-scm
