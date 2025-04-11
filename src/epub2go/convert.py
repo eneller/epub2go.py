@@ -1,13 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
-from bs4 import ResultSet
 from urllib.parse import urljoin
 from urllib.request import  urlparse
 from tqdm import tqdm
 from pyfzf.pyfzf import FzfPrompt
 import click
 
-import os, subprocess, shlex, logging, re
+import os
+import subprocess
+import shlex
+import logging
+import re
 import concurrent.futures
 import importlib.resources as pkg_resources
 from dataclasses import dataclass
