@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from typing import List
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.NOTSET,format='%(asctime)s - %(levelname)s - %(message)s')
 
 allbooks_url ='https://www.projekt-gutenberg.org/info/texte/allworka.html'
 
