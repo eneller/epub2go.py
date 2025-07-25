@@ -18,8 +18,16 @@ epub2go = "epub2go.convert:main"
 [tool.setuptools]
 include-package-data = true
 
+[tool.sonar]
+project-key="epub2go"
+
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]
+
+[dependency-groups]
+dev = [
+    "pysonar>=1.0.2.1722",
+]
 
 [tool.setuptools_scm]
 # can be empty if no extra settings are needed, presence enables setuptools-scm

@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/python,pycharm+all,phpstorm+all,visualstudiocode,images
-# Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm+all,phpstorm+all,visualstudiocode,images
+# Created by https://www.toptal.com/developers/gitignore/api/images,python,pycharm+all,phpstorm+all,visualstudiocode,sonar
+# Edit at https://www.toptal.com/developers/gitignore?templates=images,python,pycharm+all,phpstorm+all,visualstudiocode,sonar
 
 ### Images ###
 # JPEG
@@ -381,6 +381,10 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+### Sonar ###
+#Sonar generated dir
+/.sonar/
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -400,19 +404,9 @@ pyrightconfig.json
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,phpstorm+all,visualstudiocode,images
+# End of https://www.toptal.com/developers/gitignore/api/images,python,pycharm+all,phpstorm+all,visualstudiocode,sonar
 
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
 # Custom
-/nbproject/
-/system/IECache/**/*
-/multiCMS/updateFramework.php
 *.epub
 *.html
 *.css
