@@ -413,3 +413,8 @@ pyrightconfig.json
 *.js
 *.txt
 *.json
+
+
+# Added by cargo
+
+/target
